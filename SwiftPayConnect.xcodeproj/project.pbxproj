@@ -10,9 +10,22 @@
 		76960C652DF7282E008F18CF /* SwiftPayConnect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftPayConnect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		76960CDD2DF75379008F18CF /* Exceptions for "SwiftPayConnect" folder in "SwiftPayConnect" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Utils/MockData.swift,
+			);
+			target = 76960C642DF7282E008F18CF /* SwiftPayConnect */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		76960C672DF7282E008F18CF /* SwiftPayConnect */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				76960CDD2DF75379008F18CF /* Exceptions for "SwiftPayConnect" folder in "SwiftPayConnect" target */,
+			);
 			path = SwiftPayConnect;
 			sourceTree = "<group>";
 		};
