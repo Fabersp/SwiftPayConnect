@@ -39,8 +39,20 @@ struct HomeView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink(destination: CheckoutView()) {
-                        Image(systemName: "cart")
-                            .font(.title3)
+                        ZStack(alignment: .topTrailing) {
+                            Image(systemName: "cart")
+                                .font(.title3)
+                            
+                            if viewModel.cartItemsCount > 0 {
+                                Text("\(viewModel.cartItemsCount)")
+                                    .font(.caption2.bold())
+                                    .foregroundColor(.white)
+                                    .frame(width: 15, height: 15)
+                                    .background(Color.red)
+                                    .clipShape(Circle())
+                                    .offset(x: 5, y: -5)
+                            }
+                        }
                     }
                 }
             }

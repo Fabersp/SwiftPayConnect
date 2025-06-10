@@ -9,33 +9,10 @@ import SwiftUI
 
 struct CheckoutView: View {
     @StateObject private var vm = CheckoutViewModel()
+    @StateObject private var paymentVM = PaymentViewModel()
 
     var body: some View {
         VStack(spacing: 10) {
-            HStack {
-                Button {
-                    /* go back */
-                    
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.title2)
-                        .padding(8)
-                        .background(Color(.systemGray6))
-                        .clipShape(Circle())
-                }
-                Spacer()
-            }
-            .padding(.horizontal)
-            .padding(.top, 8)
-
-            // MARK: – Title
-            HStack {
-                Text("My Cart")
-                    .font(.title).bold()
-                Spacer()
-            }
-            .padding(.horizontal)
-
             // MARK: – Item List
             ScrollView {
                 VStack(spacing: 20) {
@@ -60,7 +37,10 @@ struct CheckoutView: View {
 
                             // Quantity controls
                             VStack(spacing: 8) {
-                                Button { vm.increment(item) } label: {
+                                Button { 
+                                    vm.increment(item)
+                                    paymentVM.updateCartCount(vm.items.reduce(0) { $0 + $1.quantity })
+                                } label: {
                                     Image(systemName: "plus")
                                         .font(.system(size: 14, weight: .bold))
                                         .padding(6)
@@ -69,7 +49,10 @@ struct CheckoutView: View {
                                 }
                                 Text("\(item.quantity)")
                                     .font(.headline)
-                                Button { vm.decrement(item) } label: {
+                                Button { 
+                                    vm.decrement(item)
+                                    paymentVM.updateCartCount(vm.items.reduce(0) { $0 + $1.quantity })
+                                } label: {
                                     Image(systemName: "minus")
                                         .font(.system(size: 14, weight: .bold))
                                         .padding(6)
@@ -78,9 +61,7 @@ struct CheckoutView: View {
                                 }
                             }
                         }
-                        
                         .padding(.horizontal)
-                        
                     }
                 }
                 .padding(.top, 8)
@@ -113,7 +94,12 @@ struct CheckoutView: View {
                     .padding(.bottom, 15)
             }
         }
-        .navigationBarHidden(true)
+        .navigationTitle("My Cart")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            // Update cart count when view appears
+            paymentVM.updateCartCount(vm.items.reduce(0) { $0 + $1.quantity })
+        }
     }
 
     @ViewBuilder

@@ -11,6 +11,7 @@ import Combine
 class PaymentViewModel: ObservableObject {
     @Published var gateways: [Gateway] = []
     @Published var selectedGateway: Gateway?
+    @Published var cartItemsCount: Int = 3
     private let gatewayService = PaymentGatewayService()
 
     init() {
@@ -25,5 +26,10 @@ class PaymentViewModel: ObservableObject {
     /// Select a gateway
     func selectGateway(_ gateway: Gateway) {
         selectedGateway = gateway
+    }
+    
+    /// Update cart items count
+    func updateCartCount(_ count: Int) {
+        cartItemsCount = count
     }
 }
