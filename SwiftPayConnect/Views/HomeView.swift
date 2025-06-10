@@ -13,10 +13,25 @@ struct HomeView: View {
         NavigationView {
             List {
                 NavigationLink("Add Credit Card",  destination: CardView())
-                NavigationLink("View Cart",         destination: CartView())
-                NavigationLink("Choose Gateway",    destination: PaymentView())
+                NavigationLink("View checkout",    destination: CheckoutView())
+                NavigationLink("Choose Gateway",   destination: PaymentView())
             }
             .navigationTitle("SwiftPayConnect")
+        }
+    }
+}
+
+// Adjusted Preview Setup
+struct HomeView_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            HomeView()
+                .preferredColorScheme(.light)
+                .previewDevice("iPhone 14 Pro")
+            
+            HomeView()
+                .preferredColorScheme(.dark)
+                .previewDevice("iPhone 14 Pro")
         }
     }
 }

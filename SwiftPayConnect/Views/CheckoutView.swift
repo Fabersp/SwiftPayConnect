@@ -2,78 +2,120 @@
 //  CheckoutView.swift
 //  SwiftPayConnect
 //
-//  Created by Fabricio Padua on 6/9/25.
+//  Created by Fabricio Padua on 06/09/25.
 //
 
 import SwiftUI
 
-/// Checkout screen showing items, shipping, and grand total
 struct CheckoutView: View {
     @StateObject private var vm = CheckoutViewModel()
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Header
+        VStack(spacing: 10) {
             HStack {
-                Text("My Cart")
-                    .font(.largeTitle).bold()
-                Spacer()
-            }
-            .padding()
-
-            // Item list
-            List(vm.items) { item in
-                HStack {
-                    // Placeholder thumbnail
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(width: 50, height: 50)
-                        .cornerRadius(8)
-
-                    VStack(alignment: .leading) {
-                        Text(item.name)
-                            .font(.headline)
-                        Text(String(format: "$%.2f", item.price))
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    Spacer()
-                    Text("x\(item.quantity)")
-                        .font(.subheadline)
+                Button {
+                    /* go back */
+                    
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.title2)
+                        .padding(8)
+                        .background(Color(.systemGray6))
+                        .clipShape(Circle())
                 }
-                .padding(.vertical, 4)
-            }
-            .listStyle(PlainListStyle())
-
-            // Summary
-            VStack(spacing: 8) {
-                summaryRow(label: "Subtotal", value: vm.amount)
-                summaryRow(label: "S&H",       value: vm.shippingFee)
-                Divider()
-                summaryRow(label: "TOTAL",     value: vm.totalAmount, isTotal: true)
+                Spacer()
             }
             .padding(.horizontal)
             .padding(.top, 8)
 
-            // Checkout button
-            Button(action: {
-                // TODO: implement real checkout
-            }) {
+            // MARK: – Title
+            HStack {
+                Text("My Cart")
+                    .font(.title).bold()
+                Spacer()
+            }
+            .padding(.horizontal)
+
+            // MARK: – Item List
+            ScrollView {
+                VStack(spacing: 20) {
+                    ForEach(vm.items) { item in
+                        HStack(spacing: 16) {
+                            Image(item.imageName)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 60, height: 60)
+                                .background(Color(.systemGray6))
+                                .cornerRadius(12)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(item.name)
+                                    .font(.headline).bold()
+                                Text(String(format: "$%.2f", item.price))
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Spacer()
+
+                            // Quantity controls
+                            VStack(spacing: 8) {
+                                Button { vm.increment(item) } label: {
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .padding(6)
+                                        .background(Color(.systemGray6))
+                                        .clipShape(Circle())
+                                }
+                                Text("\(item.quantity)")
+                                    .font(.headline)
+                                Button { vm.decrement(item) } label: {
+                                    Image(systemName: "minus")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .padding(6)
+                                        .background(Color(.systemGray6))
+                                        .clipShape(Circle())
+                                }
+                            }
+                        }
+                        
+                        .padding(.horizontal)
+                        
+                    }
+                }
+                .padding(.top, 8)
+            }
+
+            // MARK: – Summary
+            VStack(spacing: 15) {
+                Divider()
+                summaryRow(label: "Subtotal", value: vm.subtotal)
+                summaryRow(label: "S&H",       value: vm.shippingFee)
+                Divider()
+                summaryRow(label: "TOTAL",     value: vm.total, isTotal: true)
+                Divider()
+            }
+            .padding(.horizontal)
+            .padding(.top, 8)
+
+            // MARK: – Checkout button
+            Button {
+                // TODO: implement checkout action
+            } label: {
                 Text("Checkout")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.blue)
                     .foregroundColor(.white)
-                    .cornerRadius(10)
+                    .cornerRadius(25)
                     .padding(.horizontal)
-                    .padding(.bottom, 20)
+                    .padding(.bottom, 15)
             }
         }
         .navigationBarHidden(true)
     }
 
-    /// Helper to layout a summary row
     @ViewBuilder
     private func summaryRow(label: String, value: Double, isTotal: Bool = false) -> some View {
         HStack {
@@ -88,11 +130,8 @@ struct CheckoutView: View {
     }
 }
 
-// Preview
 struct CheckoutView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
-            CheckoutView()
-        }
+        NavigationView { CheckoutView() }
     }
 }
