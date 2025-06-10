@@ -11,5 +11,5 @@ import Foundation
 struct Gateway: Identifiable, Hashable {
     let id = UUID()
     let name: String
-    let logoAssetName: String   // name of the image in Assets.xcassets
+    let logoAssetName: String
 }

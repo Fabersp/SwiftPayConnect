@@ -9,14 +9,41 @@ import SwiftUI
 
 /// Main menu to navigate between features
 struct HomeView: View {
+    @StateObject private var viewModel = PaymentViewModel()
+    
     var body: some View {
         NavigationView {
-            List {
-                NavigationLink("Add Credit Card",  destination: CardView())
-                NavigationLink("View checkout",    destination: CheckoutView())
-                NavigationLink("Choose Gateway",   destination: PaymentView())
+            List(viewModel.gateways) { gateway in
+                Button {
+                    viewModel.selectGateway(gateway)
+                } label: {
+                    HStack {
+                        Image(gateway.logoAssetName)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 40, height: 24)
+                            .cornerRadius(4)
+                        Text(gateway.name)
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                        Spacer()
+                        if viewModel.selectedGateway?.id == gateway.id {
+                            Image(systemName: "checkmark")
+                                .foregroundColor(.blue)
+                        }
+                    }
+                    .padding(.vertical, 8)
+                }
             }
-            .navigationTitle("SwiftPayConnect")
+            .navigationTitle("Select a Gateway")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink(destination: CheckoutView()) {
+                        Image(systemName: "cart")
+                            .font(.title3)
+                    }
+                }
+            }
         }
     }
 }
