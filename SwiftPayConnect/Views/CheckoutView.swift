@@ -9,7 +9,8 @@ import SwiftUI
 
 struct CheckoutView: View {
     @StateObject private var vm = CheckoutViewModel()
-    @StateObject private var paymentVM = PaymentViewModel()
+    @ObservedObject var paymentVM: PaymentViewModel
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         VStack(spacing: 10) {
@@ -81,17 +82,30 @@ struct CheckoutView: View {
 
             // MARK: – Checkout button
             Button {
-                // TODO: implement checkout action
+                paymentVM.processPayment(amount: vm.total)
             } label: {
-                Text("Checkout")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(25)
-                    .padding(.horizontal)
-                    .padding(.bottom, 15)
+                if paymentVM.isProcessingPayment {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                } else {
+                    Text("Checkout")
+                }
+            }
+            .font(.headline)
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(25)
+            .padding(.horizontal)
+            .padding(.bottom, 15)
+            .disabled(paymentVM.isProcessingPayment)
+            
+            if let error = paymentVM.paymentError {
+                Text(error)
+                    .foregroundColor(.red)
+                    .font(.caption)
+                    .padding(.bottom)
             }
         }
         .navigationTitle("My Cart")
@@ -118,6 +132,6 @@ struct CheckoutView: View {
 
 struct CheckoutView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView { CheckoutView() }
+        NavigationView { CheckoutView(paymentVM: PaymentViewModel()) }
     }
 }

@@ -13,7 +13,7 @@ struct HomeView: View {
     
     var body: some View {
         NavigationView {
-            List(viewModel.gateways) { gateway in
+            List(viewModel.gateways, id: \.name) { gateway in
                 Button {
                     viewModel.selectGateway(gateway)
                 } label: {
@@ -27,7 +27,7 @@ struct HomeView: View {
                             .font(.headline)
                             .foregroundColor(.primary)
                         Spacer()
-                        if viewModel.selectedGateway?.id == gateway.id {
+                        if viewModel.selectedGateway?.name == gateway.name {
                             Image(systemName: "checkmark")
                                 .foregroundColor(.blue)
                         }
@@ -38,7 +38,7 @@ struct HomeView: View {
             .navigationTitle("Select a Gateway")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink(destination: CheckoutView()) {
+                    NavigationLink(destination: CheckoutView(paymentVM: viewModel)) {
                         ZStack(alignment: .topTrailing) {
                             Image(systemName: "cart")
                                 .font(.title3)
