@@ -7,7 +7,6 @@
 
 import Foundation
 
-/// Represents a payment gateway option
 struct Gateway: Identifiable, Hashable {
     let id = UUID()
     let name: String

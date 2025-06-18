@@ -6,38 +6,47 @@
 //
 
 import Foundation
+import SwiftUI
 
 class CheckoutViewModel: ObservableObject {
-    /// Mock data baked into the VM
-    @Published var items: [CartItem] = [
-        .init(name: "AirPods Pro",    price: 199.90,  quantity: 1, imageName: "airpodspro"),
-        .init(name: "iPhone 16 Pro",  price: 1299.90, quantity: 1, imageName: "iphone"),
-        .init(name: "Watch Series 5", price: 329.99,  quantity: 1, imageName: "applewatch")
-    ]
-
-    /// Flat shipping & handling fee
+    @Published var items: [CartItem] = []
     let shippingFee: Double = 4.98
+    
+    weak var paymentVM: PaymentViewModel?
 
-    /// Subtotal (sum of all item prices × qty)
     var subtotal: Double {
         items.reduce(0) { $0 + $1.price * Double($1.quantity) }
     }
 
-    /// Grand total = subtotal + shipping
     var total: Double {
         subtotal + shippingFee
     }
 
-    /// Increase item quantity by 1
-    func increment(_ item: CartItem) {
-        guard let idx = items.firstIndex(where: { $0.id == item.id }) else { return }
-        items[idx].quantity += 1
+    init(paymentVM: PaymentViewModel? = nil) {
+        self.paymentVM = paymentVM
+        // Initialize mock items or load from data source
+        items = [
+            CartItem(name: "AirPods Pro", price: 199.90, quantity: 1, imageName: "airpodspro"),
+            CartItem(name: "iPhone 16 Pro", price: 1299.90, quantity: 1, imageName: "iphone"),
+            CartItem(name: "Watch Series 5", price: 329.99, quantity: 1, imageName: "applewatch")
+        ]
+        updatePaymentViewModel()
     }
 
-    /// Decrease item quantity by 1 (min 1)
+    func increment(_ item: CartItem) {
+        guard let index = items.firstIndex(where: { $0.id == item.id }) else { return }
+        items[index].quantity += 1
+        updatePaymentViewModel()
+    }
+
     func decrement(_ item: CartItem) {
-        guard let idx = items.firstIndex(where: { $0.id == item.id }),
-              items[idx].quantity > 1 else { return }
-        items[idx].quantity -= 1
+        guard let index = items.firstIndex(where: { $0.id == item.id }),
+              items[index].quantity > 1 else { return }
+        items[index].quantity -= 1
+        updatePaymentViewModel()
+    }
+    
+    private func updatePaymentViewModel() {
+        paymentVM?.updateCartItems(items)
     }
 }

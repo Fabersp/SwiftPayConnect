@@ -9,53 +9,56 @@ import SwiftUI
 
 /// Main menu to navigate between features
 struct HomeView: View {
-    @StateObject private var viewModel = PaymentViewModel()
+    @ObservedObject var viewModel: CheckoutViewModel
+    @ObservedObject var paymentVM: PaymentViewModel
+    
+    private let columns = [
+        GridItem(.flexible()),
+        GridItem(.flexible())
+    ]
     
     var body: some View {
-        NavigationView {
-            List(viewModel.gateways, id: \.name) { gateway in
-                Button {
-                    viewModel.selectGateway(gateway)
-                } label: {
-                    HStack {
-                        Image(gateway.logoAssetName)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 40, height: 24)
-                            .cornerRadius(4)
-                        Text(gateway.name)
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                        Spacer()
-                        if viewModel.selectedGateway?.name == gateway.name {
-                            Image(systemName: "checkmark")
-                                .foregroundColor(.blue)
+        NavigationStack {
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 20) {
+                    ForEach(paymentVM.gateways, id: \.name) { gateway in
+                        NavigationLink(destination: destinationView(for: gateway)) {
+                            VStack {
+                                Image(gateway.logoAssetName)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 120)
+                                    .cornerRadius(8)
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(.systemBackground))
+                                    .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+                            )
                         }
                     }
-                    .padding(.vertical, 8)
                 }
+                .padding()
             }
             .navigationTitle("Select a Gateway")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink(destination: CheckoutView(paymentVM: viewModel)) {
-                        ZStack(alignment: .topTrailing) {
-                            Image(systemName: "cart")
-                                .font(.title3)
-                            
-                            if viewModel.cartItemsCount > 0 {
-                                Text("\(viewModel.cartItemsCount)")
-                                    .font(.caption2.bold())
-                                    .foregroundColor(.white)
-                                    .frame(width: 15, height: 15)
-                                    .background(Color.red)
-                                    .clipShape(Circle())
-                                    .offset(x: 5, y: -5)
-                            }
-                        }
-                    }
-                }
-            }
+        }
+    }
+    
+    @ViewBuilder
+    private func destinationView(for gateway: PaymentGatewayProtocol) -> some View {
+        switch gateway.name {
+        case "Apple Pay":
+            ApplePayCheckoutView(viewModel: viewModel, paymentVM: paymentVM)
+        case "Stripe":
+            StripeCheckoutView(viewModel: viewModel, paymentVM: paymentVM)
+        case "PayPal":
+            CheckoutView(paymentVM: paymentVM)
+        case "Adyen":
+            CheckoutView(paymentVM: paymentVM)
+        default:
+            CheckoutView(paymentVM: paymentVM)
         }
     }
 }
@@ -64,11 +67,11 @@ struct HomeView: View {
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            HomeView()
+            HomeView(viewModel: CheckoutViewModel(), paymentVM: PaymentViewModel())
                 .preferredColorScheme(.light)
                 .previewDevice("iPhone 14 Pro")
             
-            HomeView()
+            HomeView(viewModel: CheckoutViewModel(), paymentVM: PaymentViewModel())
                 .preferredColorScheme(.dark)
                 .previewDevice("iPhone 14 Pro")
         }

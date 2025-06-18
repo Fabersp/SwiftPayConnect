@@ -5,65 +5,91 @@
 //  Created by Fabricio Padua on 1/3/25.
 //
 
+import Foundation
 import Combine
 import SwiftUI
 
-/// Manages the list of gateways for selection
 class PaymentViewModel: ObservableObject {
     @Published var gateways: [PaymentGatewayProtocol] = []
     @Published var selectedGateway: PaymentGatewayProtocol?
+    @Published var cartItems: [CartItem] = []
     @Published var cartItemsCount: Int = 3
     @Published var isProcessingPayment = false
     @Published var paymentError: String?
     
-    private let gatewayService = PaymentGatewayService()
+    var totalAmount: Double {
+        cartItems.reduce(0) { $0 + ($1.price * Double($1.quantity)) }
+    }
+
+    private let service = PaymentGatewayService()
+    private let applePayGateway = ApplePayGateway()
+    private let stripeGateway = StripeGateway()
+    private let paypalGateway = PayPalGateway()
+    private let adyenGateway = AdyenGateway()
 
     init() {
-        loadGateways()
-    }
-
-    /// Load mock gateways (replace with real API call later)
-    func loadGateways() {
-        self.gateways = [
-            ApplePayGateway(),
-            StripeGateway(),
-            PayPalGateway(),
-            AdyenGateway()
-        ]
+        setupGateways()
     }
     
-    /// Select a gateway
+    private func setupGateways() {
+        let availableGateways = service.fetchGateways()
+        gateways = availableGateways.compactMap { gateway in
+            switch gateway.name {
+            case "Apple Pay":
+                return applePayGateway
+            case "Stripe":
+                return stripeGateway
+            case "PayPal":
+                return paypalGateway
+            case "Adyen":
+                return adyenGateway
+            default:
+                return nil
+            }
+        }
+    }
+
     func selectGateway(_ gateway: PaymentGatewayProtocol) {
         selectedGateway = gateway
     }
-    
-    /// Update cart items count
+
     func updateCartCount(_ count: Int) {
         cartItemsCount = count
     }
     
-    /// Process payment with selected gateway
+    func updateCartItems(_ items: [CartItem]) {
+        cartItems = items
+        cartItemsCount = items.reduce(0) { $0 + $1.quantity }
+    }
+
     func processPayment(amount: Double) {
         guard let gateway = selectedGateway else {
             paymentError = "Please select a payment gateway"
             return
         }
-        
         isProcessingPayment = true
         paymentError = nil
-        
+
         gateway.processPayment(amount: amount) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isProcessingPayment = false
-                
                 switch result {
                 case .success:
                     self?.paymentError = nil
-                    // Show success message or handle successful payment
+                    self?.cartItems = []
+                    self?.cartItemsCount = 0
                 case .failure(let error):
                     self?.paymentError = error.localizedDescription
                 }
             }
         }
+    }
+    
+    func processApplePayPayment() {
+        guard let applePayGateway = selectedGateway as? ApplePayGateway else {
+            paymentError = "Apple Pay is not available"
+            return
+        }
+        processPayment(amount: totalAmount)
     }
 }

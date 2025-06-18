@@ -1,3 +1,4 @@
+// PaymentGatewayProtocol.swift
 import Foundation
 
 protocol PaymentGatewayProtocol {
@@ -11,4 +12,4 @@ enum PaymentError: Error {
     case paymentFailed
     case invalidAmount
     case userCancelled
-} 
+}

@@ -8,11 +8,35 @@
 import SwiftUI
 
 struct CheckoutView: View {
-    @StateObject private var vm = CheckoutViewModel()
+    @StateObject private var vm: CheckoutViewModel
     @ObservedObject var paymentVM: PaymentViewModel
     @Environment(\.dismiss) private var dismiss
 
+    init(paymentVM: PaymentViewModel) {
+        self.paymentVM = paymentVM
+        self._vm = StateObject(wrappedValue: CheckoutViewModel(paymentVM: paymentVM))
+    }
+
     var body: some View {
+        Group {
+            if let selectedGateway = paymentVM.selectedGateway {
+                if selectedGateway.name == "Stripe" {
+                    CheckoutStripe(viewModel: vm, paymentVM: paymentVM)
+                } else {
+                    regularCheckoutView
+                }
+            } else {
+                regularCheckoutView
+            }
+        }
+        .navigationTitle("My Cart")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            paymentVM.updateCartCount(vm.items.reduce(0) { $0 + $1.quantity })
+        }
+    }
+    
+    private var regularCheckoutView: some View {
         VStack(spacing: 10) {
             // MARK: – Item List
             ScrollView {
@@ -72,9 +96,9 @@ struct CheckoutView: View {
             VStack(spacing: 15) {
                 Divider()
                 summaryRow(label: "Subtotal", value: vm.subtotal)
-                summaryRow(label: "S&H",       value: vm.shippingFee)
+                summaryRow(label: "S&H", value: vm.shippingFee)
                 Divider()
-                summaryRow(label: "TOTAL",     value: vm.total, isTotal: true)
+                summaryRow(label: "TOTAL", value: vm.total, isTotal: true)
                 Divider()
             }
             .padding(.horizontal)
@@ -107,12 +131,6 @@ struct CheckoutView: View {
                     .font(.caption)
                     .padding(.bottom)
             }
-        }
-        .navigationTitle("My Cart")
-        .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            // Update cart count when view appears
-            paymentVM.updateCartCount(vm.items.reduce(0) { $0 + $1.quantity })
         }
     }
 
