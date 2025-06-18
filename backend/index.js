@@ -3,7 +3,7 @@ const Stripe = require("stripe");
 const cors = require("cors");
 
 const app = express();
-const stripe = Stripe("sk_test_51RYuAWBCUP1U3KirjpLU9cOqaFiV74M5lCUXbDqTqxOOyQ6xpgvC3LuE9LkBgPWZgASDYe7bOZLuoqm6IaoG8S6v00DocAk9cQ");
+const stripe = Stripe("sk_test_.....");
 
 app.use(cors());
 app.use(express.json());
@@ -39,7 +39,7 @@ app.post("/create-payment-intent", async (req, res) => {
       paymentIntent: paymentIntent.client_secret,
       customer: customer.id,
       ephemeralKey: ephemeralKey.secret,
-      publishableKey: "pk_test_51RYuAWBCUP1U3KirxfUgOjqZ1YtTjc9GljkYSulIOQ4MIvibDjJ9lyHC2MU4ir0r4nIDu18qEpDVrqyTqcKz5A9L001ZhCnwbJ"
+      publishableKey: "pk_test_..."
     });
   } catch (error) {
     console.error("Error:", error);
